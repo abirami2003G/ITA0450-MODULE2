@@ -1,0 +1,52 @@
+13. Iris dataset is a very famous dataset in almost all data mining, machine learning
+courses, and it has been an R build-in dataset. The dataset consists of 50 samples from
+each of three species of Iris flowers (Iris setosa, Iris virginica and Iris versicolor). Four
+features(variables) were measured from each sample, they are the length and
+the width of sepal and petal, in centimetres. Perform the following EDA steps .
+(i)Find dimension, Structure, Summary statistics, Standard Deviation of all features.
+(ii)Find mean and standard deviation of features groped by three species of Iris flowers
+(Iris setosa, Iris virginica and Iris versicolor)
+(iii)Find quantile value of sepal width and length
+(iV)create new data frame named iris1 which have a new column name
+Sepal.Length.Cate that categorizes “Sepal.Length” by quantile
+(V) Average value of numerical varialbes by two categorical variables: Species and
+Sepal.Length.Cate:
+(vi) Average mean value of numerical varialbes by Species and Sepal.Length.Cate
+(vii)Create Pivot Table based on Species and Sepal.Length.Cate.
+
+Coding:
+data(iris)
+
+#(i) EDA steps
+dim(iris)
+str(iris)
+summary(iris)
+sapply(iris[,1:4], sd)
+
+#(ii) mean and standard deviation of features grouped by species
+aggregate(iris[,1:4], list(Species = iris$Species), mean)
+aggregate(iris[,1:4], list(Species = iris$Species), sd)
+
+# (iii) quantile value of sepal width and length
+quantile(iris$Sepal.Width)
+quantile(iris$Sepal.Length)
+
+# (iv) create new data frame named iris1 with Sepal.Length.Cate column
+iris1 <- iris
+iris1$Sepal.Length.Cate <- cut(iris1$Sepal.Length, breaks = quantile(iris1$Sepal.Length))
+head(iris1)
+
+# (v) average value of numerical variables by Species and Sepal.Length.Cate
+aggregate(iris1[,1:4], list(Species = iris1$Species, Sepal.Length.Cate = iris1$Sepal.Length.Cate), mean)
+
+# (vi) average mean value of numerical variables by Species and Sepal.Length.Cate
+aggregate(iris1[,1:4], list(Species = iris1$Species, Sepal.Length.Cate = iris1$Sepal.Length.Cate), FUN = function(x) mean(x, na.rm = TRUE))
+
+# (vii) create pivot table based on Species and Sepal.Length.Cate
+library(tidyr)
+library(dplyr)
+pivot_data <- iris1 %>% 
+  group_by(Species, Sepal.Length.Cate) %>% 
+  summarize_all(mean)
+pivot_table <- pivot_wider(pivot_data, names_from = Sepal.Length.Cate, values_from = c(Sepal.Length, Sepal.Width, Petal.Length, Petal.Width))
+pivot_table
